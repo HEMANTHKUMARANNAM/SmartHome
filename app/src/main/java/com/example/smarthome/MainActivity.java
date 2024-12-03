@@ -168,6 +168,8 @@ public class MainActivity extends AppCompatActivity {
 
                 try{
                     outputStream.write(("D1ON"+"\r\n").getBytes() );
+                    Toast.makeText(getApplicationContext() , "D1 IS TURNED ON" , Toast.LENGTH_SHORT).show();
+
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                 }
@@ -181,6 +183,8 @@ public class MainActivity extends AppCompatActivity {
 
                 try{
                     outputStream.write(("D1OFF"+"\r\n").getBytes() );
+                    Toast.makeText(getApplicationContext() , "D1 IS TURNED OFF" , Toast.LENGTH_SHORT).show();
+
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                 }
@@ -194,9 +198,12 @@ public class MainActivity extends AppCompatActivity {
 
                 try{
                     outputStream.write(("D2ON"+"\r\n").getBytes() );
+                    Toast.makeText(getApplicationContext() , "D2 IS TURNED ON" , Toast.LENGTH_SHORT).show();
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                 }
+
+
 
             }
         });
@@ -207,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
 
                 try{
                     outputStream.write(("D2OFF"+"\r\n").getBytes() );
+                    Toast.makeText(getApplicationContext() , "D2 IS TURNED OFF" , Toast.LENGTH_SHORT).show();
+
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                 }
@@ -220,6 +229,8 @@ public class MainActivity extends AppCompatActivity {
 
                 try{
                     outputStream.write(("D3ON"+"\r\n").getBytes() );
+                    Toast.makeText(getApplicationContext() , "D3 IS TURNED ON" , Toast.LENGTH_SHORT).show();
+
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                 }
@@ -233,6 +244,8 @@ public class MainActivity extends AppCompatActivity {
 
                 try{
                     outputStream.write(("D3OFF"+"\r\n").getBytes() );
+                    Toast.makeText(getApplicationContext() , "D3 IS TURNED OFF" , Toast.LENGTH_SHORT).show();
+
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                 }
@@ -246,6 +259,8 @@ public class MainActivity extends AppCompatActivity {
 
                 try{
                     outputStream.write(("D4OFF"+"\r\n").getBytes() );
+                    Toast.makeText(getApplicationContext() , "D4 IS TURNED ON" , Toast.LENGTH_SHORT).show();
+
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                 }
@@ -259,6 +274,8 @@ public class MainActivity extends AppCompatActivity {
 
                 try{
                     outputStream.write(("D4ON"+"\r\n").getBytes() );
+                    Toast.makeText(getApplicationContext() , "D4 IS TURNED OFF" , Toast.LENGTH_SHORT).show();
+
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                 }
@@ -272,6 +289,9 @@ public class MainActivity extends AppCompatActivity {
 
                 try{
                     outputStream.write(("D5ON"+"\r\n").getBytes() );
+
+                    Toast.makeText(getApplicationContext() , "D5 IS TURNED ON" , Toast.LENGTH_SHORT).show();
+
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                 }
@@ -285,6 +305,8 @@ public class MainActivity extends AppCompatActivity {
 
                 try{
                     outputStream.write(("D5OFF"+"\r\n").getBytes() );
+                    Toast.makeText(getApplicationContext() , "D5 IS TURNED OFF" , Toast.LENGTH_SHORT).show();
+
                 }catch (Exception e){
                     Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                 }
