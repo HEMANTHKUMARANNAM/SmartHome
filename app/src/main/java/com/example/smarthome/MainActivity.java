@@ -1,5 +1,6 @@
 package com.example.smarthome;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -13,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -23,6 +25,8 @@ import android.widget.Toast;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Set;
 
 import java.util.UUID;
@@ -56,6 +60,15 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    private static final int REQUEST_CODE_SPEECH_INPUT = 1;
+    private TextView textView;
+    private Button btnSpeak;
+
+
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
         ConnectBtn = findViewById(R.id.button8);
 
         data =  findViewById(R.id.textView5);
+
+        btnSpeak = findViewById(R.id.button13);
 
 
 
@@ -97,6 +112,14 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(Btreceiver, intentFilter );
 
         ConnectBtn.setEnabled(false);
+
+
+        btnSpeak.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startSpeechToText();
+            }
+        });
 
 
 
@@ -373,6 +396,143 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+
+
+
+
+
+
+
+
+
+    private void startSpeechToText() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+//        intent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true); // Prefer offline recognition
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...");
+
+        try {
+            startActivityForResult(intent, REQUEST_CODE_SPEECH_INPUT);
+        } catch (Exception e) {
+            Toast.makeText(this, "Your device does not support Speech Input", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_SPEECH_INPUT) {
+            if (resultCode == RESULT_OK && data != null) {
+                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                if (result != null && !result.isEmpty()) {
+
+                    String command = String.valueOf(result.get(0)).trim().toUpperCase().replace(" " , "");
+
+                    if( checkcommand(command)  )
+                    {
+
+                        String d = command.substring(0,6) ;
+                        char number = command.charAt(6);
+                        String turn = command.substring(7,11) ;
+
+                        String operation;
+
+                        if( command.length() == 13  )
+                        {
+                            operation = command.substring(10 , 13);
+                        }
+                        else
+                        {
+                            operation = command.substring(10 , 14);
+                        }
+
+                        int devnum = number - 'A' +1;
+
+                        String devstr = "D" + String.valueOf(devnum);
+
+
+
+
+                        try{
+                            outputStream.write((  devstr + operation+"\r\n").getBytes() );
+                            Toast.makeText(getApplicationContext() , devstr+" IS TURNED "+ operation , Toast.LENGTH_SHORT).show();
+                        }catch (Exception e){
+                            Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                    else
+                    {
+                        Toast.makeText(getApplicationContext() , "Invalid command" , Toast.LENGTH_SHORT).show();
+                    }
+
+
+
+
+                }
+            }
+        }
+    }
+
+
+    public static boolean checkcommand(String command )
+    {
+        Log.d("testing" , command);
+
+        if(  !(command.length()== 13 || command.length() == 14) )
+        {
+            Log.d("testing" , "length fail");
+
+            return  false;
+        }
+
+        String d = command.substring(0,6) ;
+        char number = command.charAt(6);
+        String turn = command.substring(7,11) ;
+
+        String operation;
+
+        if( command.length() == 13  )
+        {
+            operation = command.substring(11 , 13);
+            if(!operation.equals("ON"))
+            {
+                Log.d("testing" , "on fail");
+
+                return false;
+            }
+        }
+        else
+        {
+            operation = command.substring(11 , 14);
+            if(!operation.equals("OFF"))
+            {
+                Log.d("testing" , "off fail");
+
+                return false;
+            }
+        }
+
+        if( !d.equals("DEVICE") || !turn.equals("TURN")  )
+        {
+            Log.d("testing" , "text fail");
+
+            return  false;
+        }
+
+        if( !(number >=65  && number <= 69) )
+        {
+            Log.d("testing" , "chartest fail");
+            return false;
+        }
+
+
+        return true;
+
+    }
 
 
 }
