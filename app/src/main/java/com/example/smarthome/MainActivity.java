@@ -1,8 +1,10 @@
 package com.example.smarthome;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
@@ -13,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.util.Log;
@@ -64,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView textView;
     private Button btnSpeak;
 
+    private static final int NEARBY_DEVICES_PERMISSION_REQUEST_CODE = 101;
+
+
 
 
 
@@ -74,6 +80,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            checkAndRequestNearbyDevicesPermission();
+//        } else {
+//            // Nearby Devices permission not required, proceed
+//            proceedToApp();
+//        }
 
         GetDevBtn = findViewById(R.id.button);
         ConnectBtn = findViewById(R.id.button8);
@@ -409,7 +422,7 @@ public class MainActivity extends AppCompatActivity {
     private void startSpeechToText() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "En-US");
 //        intent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true); // Prefer offline recognition
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now...");
 
@@ -429,36 +442,28 @@ public class MainActivity extends AppCompatActivity {
                 ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                 if (result != null && !result.isEmpty()) {
 
+                    Log.d("speaktest" , String.valueOf(result));
+
                     String command = String.valueOf(result.get(0)).trim().toUpperCase().replace(" " , "");
 
                     if( checkcommand(command)  )
                     {
 
-                        String d = command.substring(0,6) ;
-                        char number = command.charAt(6);
-                        String turn = command.substring(7,11) ;
+                        char number = command.charAt(1);
 
-                        String operation;
+                        String operation = command.substring(2);
 
-                        if( command.length() == 13  )
+                        if( operation.equals("OF") )
                         {
-                            operation = command.substring(10 , 13);
+                            operation = "OFF";
                         }
-                        else
-                        {
-                            operation = command.substring(10 , 14);
-                        }
-
-                        int devnum = number - 'A' +1;
-
-                        String devstr = "D" + String.valueOf(devnum);
 
 
 
 
                         try{
-                            outputStream.write((  devstr + operation+"\r\n").getBytes() );
-                            Toast.makeText(getApplicationContext() , devstr+" IS TURNED "+ operation , Toast.LENGTH_SHORT).show();
+                            outputStream.write(( "D" + String.valueOf(number) + operation+"\r\n").getBytes() );
+                            Toast.makeText(getApplicationContext() , "D" + String.valueOf(number) + "IS TURNED" + operation , Toast.LENGTH_SHORT).show();
                         }catch (Exception e){
                             Toast.makeText(getApplicationContext() , "OUTPUT GOING  ERROR" , Toast.LENGTH_SHORT).show();
                         }
@@ -482,56 +487,86 @@ public class MainActivity extends AppCompatActivity {
     {
         Log.d("testing" , command);
 
-        if(  !(command.length()== 13 || command.length() == 14) )
+        if(  !(command.length()== 4 || command.length() == 5 || command.length() == 3 ) )
         {
             Log.d("testing" , "length fail");
 
             return  false;
         }
 
-        String d = command.substring(0,6) ;
-        char number = command.charAt(6);
-        String turn = command.substring(7,11) ;
+        String d = command.substring(0,1) ;
+
+        if( !d.equals("M") )
+        {
+            return false;
+        }
+        char number = command.charAt(1);
 
         String operation;
 
-        if( command.length() == 13  )
-        {
-            operation = command.substring(11 , 13);
-            if(!operation.equals("ON"))
-            {
-                Log.d("testing" , "on fail");
 
-                return false;
-            }
-        }
-        else
-        {
-            operation = command.substring(11 , 14);
-            if(!operation.equals("OFF"))
+            operation = command.substring(2);
+            if(!(operation.equals("OFF") || operation.equals("OF") || operation.equals("ON") ) )
             {
                 Log.d("testing" , "off fail");
 
                 return false;
             }
-        }
 
-        if( !d.equals("DEVICE") || !turn.equals("TURN")  )
-        {
-            Log.d("testing" , "text fail");
 
-            return  false;
-        }
-
-        if( !(number >=65  && number <= 69) )
-        {
-            Log.d("testing" , "chartest fail");
-            return false;
-        }
 
 
         return true;
 
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    private void checkAndRequestNearbyDevicesPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+
+            // Request the permissions
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_ADVERTISE,
+                    Manifest.permission.BLUETOOTH_CONNECT
+            }, NEARBY_DEVICES_PERMISSION_REQUEST_CODE);
+        } else {
+            // Permission already granted
+            proceedToApp();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NEARBY_DEVICES_PERMISSION_REQUEST_CODE) {
+            boolean allGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+            if (allGranted) {
+                proceedToApp();
+            } else {
+                closeApp();
+            }
+        }
+    }
+
+    private void proceedToApp() {
+        // Permission granted or not required, set content view or start your app's main functionality
+        setContentView(R.layout.activity_main);
+    }
+
+    private void closeApp() {
+        // Close the app as permission was denied
+        finishAffinity(); // Close all app activities
+        System.exit(0);    // Terminate the process
     }
 
 
